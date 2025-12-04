@@ -1,13 +1,13 @@
 {
-    "name": "react-native-pdf",
-    "version": "7.0.3",
+    "name": "react-native-pdf-crash-fix",
+    "version": "7.0.7",
     "summary": "A react native PDF view component",
     "description": "A react native PDF view component, support ios and android platform",
     "main": "index.js",
     "typings": "./index.d.ts",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/wonday/react-native-pdf.git"
+        "url": "git+https://github.com/sur950/react-native-pdf-crash-fix.git"
     },
     "keywords": [
         "react-component",
@@ -19,13 +19,13 @@
         "viewer"
     ],
     "author": {
-        "name": "Wonday",
-        "url": "https://github.com/wonday"
+        "name": "Suresh Konakanchi",
+        "url": "https://github.com/sur950"
     },
     "license": "MIT",
-    "homepage": "https://github.com/wonday/react-native-pdf",
+    "homepage": "https://github.com/sur950/react-native-pdf-crash-fix",
     "bugs": {
-        "url": "https://github.com/wonday/react-native-pdf/issues"
+        "url": "https://github.com/sur950/react-native-pdf-crash-fix/issues"
     },
     "dependencies": {
         "crypto-js": "4.2.0",

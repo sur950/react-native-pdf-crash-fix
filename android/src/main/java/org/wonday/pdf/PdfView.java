@@ -10,11 +10,14 @@ package org.wonday.pdf;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 import android.content.ContentResolver;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.HandlerThread;
 import android.os.ParcelFileDescriptor;
 import android.util.SizeF;
 import android.view.View;
@@ -25,6 +28,11 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.graphics.Canvas;
 import android.graphics.pdf.PdfRenderer;
+
+import io.legere.pdfiumandroid.PdfiumCore;
+import io.legere.pdfiumandroid.util.Config;
+import io.legere.pdfiumandroid.util.AlreadyClosedBehavior;
+import io.legere.pdfiumandroid.DefaultLogger;
 
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.UIManagerHelper;
@@ -89,8 +97,38 @@ public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompl
     private int oldW = 0;
     private int oldH = 0;
 
+    // Track if view is currently attached
+    private boolean isAttached = false;
+
     public PdfView(Context context, AttributeSet set){
         super(context, set);
+
+        // Configure PdfiumCore to ignore already-closed exceptions
+        // This prevents crashes when the rendering thread tries to access closed resources
+        configurePdfiumCore();
+    }
+
+    private void configurePdfiumCore() {
+        try {
+            // Access the pdfiumCore field in PDFView using reflection
+            Field pdfiumCoreField = PDFView.class.getDeclaredField("pdfiumCore");
+            pdfiumCoreField.setAccessible(true);
+
+            // Create a new PdfiumCore with AlreadyClosedBehavior.IGNORE
+            Config config = new Config(new DefaultLogger(), AlreadyClosedBehavior.IGNORE);
+            PdfiumCore pdfiumCore = new PdfiumCore(getContext(), config);
+
+            // Set the configured PdfiumCore instance
+            pdfiumCoreField.set(this, pdfiumCore);
+
+            Log.d("PdfView", "Successfully configured PdfiumCore with AlreadyClosedBehavior.IGNORE");
+        } catch (NoSuchFieldException e) {
+            Log.e("PdfView", "Failed to find pdfiumCore field. The crash fix may not work.", e);
+        } catch (IllegalAccessException e) {
+            Log.e("PdfView", "Failed to access pdfiumCore field. The crash fix may not work.", e);
+        } catch (Exception e) {
+            Log.e("PdfView", "Unexpected error configuring PdfiumCore. The crash fix may not work.", e);
+        }
     }
 
     @Override
@@ -279,8 +317,134 @@ public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompl
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        if (this.isRecycled())
+        isAttached = true;
+        showLog("onAttachedToWindow: view attached");
+
+        if (this.isRecycled()) {
+            showLog("onAttachedToWindow: redrawing recycled PDF");
             this.drawPdf();
+        }
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        showLog("onDetachedFromWindow: starting cleanup");
+        isAttached = false;
+
+        // Stop rendering handler thread explicitly before recycling
+        try {
+            stopRenderingHandler();
+        } catch (Exception e) {
+            Log.e("PdfView", "Error stopping rendering handler", e);
+        }
+
+        // Clean up PDF resources before detaching to prevent crashes
+        // when the rendering thread tries to access already-closed resources
+        try {
+            // Stop any ongoing rendering by recycling the view
+            if (!this.isRecycled()) {
+                showLog("onDetachedFromWindow: recycling PDF view");
+                this.recycle();
+            }
+        } catch (Exception e) {
+            // Catch any exceptions during cleanup to prevent crashes
+            Log.e("PdfView", "Error during recycle in onDetachedFromWindow", e);
+        }
+
+        // Always call super to ensure proper cleanup
+        try {
+            super.onDetachedFromWindow();
+        } catch (Exception e) {
+            Log.e("PdfView", "Error in super.onDetachedFromWindow", e);
+        }
+
+        showLog("onDetachedFromWindow: cleanup complete");
+    }
+
+    private void stopRenderingHandler() {
+        try {
+            // Access the renderingHandler field using reflection
+            Field renderingHandlerField = PDFView.class.getDeclaredField("renderingHandler");
+            renderingHandlerField.setAccessible(true);
+            Handler renderingHandler = (Handler) renderingHandlerField.get(this);
+
+            if (renderingHandler != null) {
+                // Remove all pending messages and callbacks
+                renderingHandler.removeCallbacksAndMessages(null);
+                showLog("stopRenderingHandler: cleared all pending render tasks");
+            }
+
+            // Also try to stop the handler thread
+            Field renderingHandlerThreadField = PDFView.class.getDeclaredField("renderingHandlerThread");
+            renderingHandlerThreadField.setAccessible(true);
+            HandlerThread renderingHandlerThread = (HandlerThread) renderingHandlerThreadField.get(this);
+
+            if (renderingHandlerThread != null && renderingHandlerThread.isAlive()) {
+                showLog("stopRenderingHandler: interrupting rendering thread");
+                renderingHandlerThread.quitSafely();
+            }
+        } catch (NoSuchFieldException e) {
+            Log.w("PdfView", "Could not access rendering handler fields (expected in some versions)", e);
+        } catch (IllegalAccessException e) {
+            Log.w("PdfView", "Could not access rendering handler", e);
+        } catch (Exception e) {
+            Log.e("PdfView", "Error stopping rendering handler", e);
+        }
+    }
+
+    private void setRenderingThreadExceptionHandler() {
+        try {
+            // Access the renderingHandlerThread field using reflection
+            Field renderingHandlerThreadField = PDFView.class.getDeclaredField("renderingHandlerThread");
+            renderingHandlerThreadField.setAccessible(true);
+            HandlerThread renderingHandlerThread = (HandlerThread) renderingHandlerThreadField.get(this);
+
+            if (renderingHandlerThread != null) {
+                // Set a custom uncaught exception handler that catches "Already closed" exceptions
+                renderingHandlerThread.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+                    @Override
+                    public void uncaughtException(Thread thread, Throwable throwable) {
+                        // Check if this is the "Already closed" exception we want to handle
+                        if (throwable instanceof IllegalStateException &&
+                            throwable.getMessage() != null &&
+                            throwable.getMessage().contains("Already closed")) {
+
+                            // Log the exception but don't crash
+                            Log.w("PdfView", "Caught 'Already closed' exception in rendering thread (expected during view detach)", throwable);
+
+                            // Post a handler to clean up on the main thread if needed
+                            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        if (!isAttached && !isRecycled()) {
+                                            showLog("Exception handler: recycling view after catching exception");
+                                            recycle();
+                                        }
+                                    } catch (Exception e) {
+                                        Log.e("PdfView", "Error in exception handler cleanup", e);
+                                    }
+                                }
+                            });
+                        } else {
+                            // For other exceptions, use the default handler
+                            Log.e("PdfView", "Uncaught exception in rendering thread", throwable);
+                            Thread.UncaughtExceptionHandler defaultHandler = Thread.getDefaultUncaughtExceptionHandler();
+                            if (defaultHandler != null) {
+                                defaultHandler.uncaughtException(thread, throwable);
+                            }
+                        }
+                    }
+                });
+                showLog("setRenderingThreadExceptionHandler: exception handler configured");
+            }
+        } catch (NoSuchFieldException e) {
+            Log.w("PdfView", "Could not access renderingHandlerThread field", e);
+        } catch (IllegalAccessException e) {
+            Log.w("PdfView", "Could not access renderingHandlerThread", e);
+        } catch (Exception e) {
+            Log.e("PdfView", "Error setting exception handler", e);
+        }
     }
 
     private int getPdfPageCount(File pdfFile) throws IOException {
@@ -304,6 +468,9 @@ public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompl
             this.setMidZoom((this.maxScale+this.minScale)/2);
             Constants.Pinch.MINIMUM_ZOOM = this.minScale;
             Constants.Pinch.MAXIMUM_ZOOM = this.maxScale;
+
+            // Set exception handler for rendering thread to catch "Already closed" exceptions
+            setRenderingThreadExceptionHandler();
 
             Configurator configurator;
 

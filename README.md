@@ -1,5 +1,6 @@
-# react-native-pdf
-[![npm](https://img.shields.io/npm/v/react-native-pdf.svg?style=flat-square)](https://www.npmjs.com/package/react-native-pdf)
+# react-native-pdf-crash-fix
+
+[![npm](https://img.shields.io/npm/v/react-native-pdf-crash-fix.svg?style=flat-square)](https://www.npmjs.com/package/react-native-pdf-crash-fix)
 
 A react native PDF view component (cross-platform support)
 
@@ -13,16 +14,16 @@ A react native PDF view component (cross-platform support)
 * jump to a specific page in the pdf
 
 ### Supported versions
-We use [`react-native-blob-util`](https://github.com/RonRadtke/react-native-blob-util) to handle file system access in this package,
-So you should install react-native-pdf and react-native-blob-util
 
-> The table below shows the supported versions of React Native and react-native-blob-util for different versions of `react-native-pdf`.
+We use [`react-native-blob-util`](https://github.com/RonRadtke/react-native-blob-util) to handle file system access in this package,
+So you should install react-native-pdf-crash-fix and react-native-blob-util
+
+> The table below shows the supported versions of React Native and react-native-blob-util for different versions of `react-native-pdf-crash-fix`.
 
 | React Native              | 0.4x - 0.56     | 0.57    | 0.60+    | 0.62+    | 0.62+    |
 | ------------------------- | --------------- | ------- | -------- | -------- | -------- |
-| react-native-pdf          | 4.x.x - 5.0.x   | 5.0.9+  | 6.0.0+   | 6.2.0+   | 6.4.0+   |
+| react-native-pdf-crash-fix          | 4.x.x - 5.0.x   | 5.0.9+  | 6.0.0+   | 6.2.0+   | 6.4.0+   |
 | react-native-blob-util    |                 |         |          |          | 0.13.7+  |
-
 
 > 🚨 Expo: This package is not available in the [Expo Go](https://expo.dev/client) app. Learn how you can use this package in [Custom Dev Clients](https://docs.expo.dev/development/getting-started/) via the out-of-tree [Expo Config Plugin](https://github.com/expo/config-plugins/tree/master/packages/react-native-pdf). Example: [`with-pdf`](https://github.com/expo/examples/tree/master/with-pdf).
 
@@ -30,15 +31,16 @@ So you should install react-native-pdf and react-native-blob-util
 
 ```bash
 # Using npm
-npm install react-native-pdf react-native-blob-util --save
+npm install react-native-pdf-crash-fix react-native-blob-util --save
 
 # or using yarn:
-yarn add react-native-pdf react-native-blob-util
+yarn add react-native-pdf-crash-fix react-native-blob-util
 ```
 
-Then follow the instructions for your platform to link react-native-pdf into your project:
+Then follow the instructions for your platform to link react-native-pdf-crash-fix into your project:
 
 ### iOS installation
+
 <details>
   <summary>iOS details</summary>
 
@@ -50,15 +52,18 @@ Run `pod install` in the `ios` directory. Linking is not required in React Nativ
 
 ```bash
 react-native link react-native-blob-util
-react-native link react-native-pdf
+react-native link react-native-pdf-crash-fix
 ```
+
 </details>
 
 ### Android installation
+
 <details>
   <summary>Android details</summary>
 
 **If you use RN 0.59.0 and above**, please add following to your android/app/build.gradle**
+
 ```diff
 android {
 
@@ -75,42 +80,46 @@ android {
 ```
 
 **React Native 0.59.0 and below**
+
 ```bash
 react-native link react-native-blob-util
-react-native link react-native-pdf
+react-native link react-native-pdf-crash-fix
 ```
-
 
 </details>
 
 ### Windows installation
+
 <details>
   <summary>Windows details</summary>
 
-- Open your solution in Visual Studio 2019 (eg. `windows\yourapp.sln`)
-- Right-click Solution icon in Solution Explorer > Add > Existing Project...
-- If running RNW 0.62: add `node_modules\react-native-pdf\windows\RCTPdf\RCTPdf.vcxproj`
-- If running RNW 0.62: add `node_modules\react-native-blob-util\windows\ReactNativeBlobUtil\ReactNativeBlobUtil.vcxproj`
-- Right-click main application project > Add > Reference...
-- Select `progress-view` and  in Solution Projects
-  - If running 0.62, also select `RCTPdf` and `ReactNativeBlobUtil`
-- In app `pch.h` add `#include "winrt/RCTPdf.h"`
-  - If running 0.62, also select `#include "winrt/ReactNativeBlobUtil.h"`
-- In `App.cpp` add `PackageProviders().Append(winrt::progress_view::ReactPackageProvider());` before `InitializeComponent();`
-  - If running RNW 0.62, also add `PackageProviders().Append(winrt::RCTPdf::ReactPackageProvider());` and `PackageProviders().Append(winrt::ReactNativeBlobUtil::ReactPackageProvider());`
-
+* Open your solution in Visual Studio 2019 (eg. `windows\yourapp.sln`)
+* Right-click Solution icon in Solution Explorer > Add > Existing Project...
+* If running RNW 0.62: add `node_modules\react-native-pdf\windows\RCTPdf\RCTPdf.vcxproj`
+* If running RNW 0.62: add `node_modules\react-native-blob-util\windows\ReactNativeBlobUtil\ReactNativeBlobUtil.vcxproj`
+* Right-click main application project > Add > Reference...
+* Select `progress-view` and  in Solution Projects
+  * If running 0.62, also select `RCTPdf` and `ReactNativeBlobUtil`
+* In app `pch.h` add `#include "winrt/RCTPdf.h"`
+  * If running 0.62, also select `#include "winrt/ReactNativeBlobUtil.h"`
+* In `App.cpp` add `PackageProviders().Append(winrt::progress_view::ReactPackageProvider());` before `InitializeComponent();`
+  * If running RNW 0.62, also add `PackageProviders().Append(winrt::RCTPdf::ReactPackageProvider());` and `PackageProviders().Append(winrt::ReactNativeBlobUtil::ReactPackageProvider());`
 
 #### Bundling PDFs with the app
+
 To add a `test.pdf` like in the example add:
+
 ```
 <None Include="..\..\test.pdf">
   <DeploymentContent>true</DeploymentContent>
 </None>
 ```
+
 in the app `.vcxproj` file, before `<None Include="packages.config" />`.
 </details>
 
 ### FAQ
+
 <details>
   <summary>FAQ details</summary>
 
@@ -156,6 +165,7 @@ A4. Expo does not support native module. you can read more expo caveats [`here`]
 
 Q5. Why can't I run the iOS example? `'Failed to build iOS project. We ran "xcodebuild" command but it exited with error code 65.'`  
 A5. Run the following commands in the project folder (e.g. `react-native-pdf/example`) to ensure that all dependencies are available:
+
 ```
 yarn install (or npm install)
 cd ios
@@ -163,20 +173,24 @@ pod install
 cd ..
 react-native run-ios
 ```
+
 </details>
 
 ### ChangeLog
+
 <details>
   <summary>ChangeLog details</summary>
 v7.0.3
 1. Fixed: RefObject types, and setPage not working in android (#985)
 
 v7.0.2
+
 1. Fixed: `Loaded page is null` error when `bookmarks` is 0 (#978)
 2. Feature: agp 7.3+ fully supported (#980)
 3. Fixed: Downgrade pdfiumandroid version to 1.0.32
 
 v7.0.1
+
 1. Fixed: not rendering on iOS
 2. Added: Android 16 KB Page Size support
 3. Fixed: crash issue in io.legere:pdfiumandroid that occurred due to multithreading
@@ -184,10 +198,12 @@ v7.0.1
 5. Added: support RTL android
 
 v6.7.7
+
 1. Added: add support for customizable scroll indicators in PdfView component (#904)
 2. Fixed: fix field values not being visible on android. issue #864 :bug: (#896)
 
 v6.7.6
+
 1. Fixed: Add missing 'enableDoubleTapZoom' to fabric codegen source (#832)
 2. Fixed: added missing 'scrollEnabled' prop (#842)
 3. Fixed: java.lang.IllegalStateException: Tried to access a JS module before the React instance was fully set up (#840)
@@ -196,35 +212,41 @@ v6.7.6
 6. Fixed: encoded accented character is decoded incorrectly (#873)
 7. Fixed: enableDoubleTapZoom bugfix
 
-
 v6.7.5
+
 1. Added progressContainerStyle prop
 2. Improved: Added enableDoubleTapZoom option
 3. Fixed: Fix app crash with this.lastRNBFTask.cancel is not a function (#827)
 4. Fixed: Remove override to fix 'no matching methods to override' error (#822)
 
 v6.7.4
+
 1. Fixed: fix Android crash issue
 
 v6.7.3
+
 1. Fixed: fix android package name
 
 v6.7.2
+
 1. Fixed: fix iOS double tap zoom scrolling
 2. Fixed: fix RN 73 compatibility
 3. Fixed: bump crypto-js to avoid critical vulnerability
 
 v6.7.1
+
 1. Fixed: fix ios project setting
 2. Fixed: fix typo in RNPDFPdfViewManagerInterface interface causing android build error
 
 v6.7.0
+
 1. Fixed: fix(iOS): center page at tap point after double tap to zoom
 2. Fixed: add PDFKit to podspec to make ios compile
 3. Improved: Update build.gradle to support RN 0.71 on new arch
 4. Fixed: fix some small bugs and documents.
 
 v6.6.2
+
 1. Fixed: Migrate to ViewPropTypes exported from 'deprecated-react-native-prop-types'
 2. Added: Decode File Path for iOS
 3. Improved: prefer current page for calculating scale factor on fit
@@ -232,12 +254,14 @@ v6.6.2
 v6.6.1 depresed
 
 v6.6.0 depresed
+
 1. Fixed: Migrate to ViewPropTypes exported from 'deprecated-react-native-prop-types'
 2. Added: Decode File Path for iOS
 3. Improved: prefer current page for calculating scale factor on fit
 4. Improved: Typescript version source
 
 v6.5.0
+
 1. Fix: replace mavenCentral with maven
 2. Breaking Change(Android): replace deprecated repository: jcenter()
 3. Fix: loading progress
@@ -245,6 +269,7 @@ v6.5.0
 5. Remove: dependency to fbjs
 
 v6.4.0
+
 1. Remove sample for reducing NPM package size
 2. Add support for setting a filename for the cached pdf file
 3. Use react-native-blob-util instead of rn-fetch-blob
@@ -252,6 +277,7 @@ v6.4.0
 5. remove progress-view dependency
 
 v6.3.0
+
 1. Add windows support
 2. Fixed some bugs
 
@@ -272,7 +298,7 @@ v6.3.0
 
 import React from 'react';
 import { StyleSheet, Dimensions, View } from 'react-native';
-import Pdf from 'react-native-pdf';
+import Pdf from 'react-native-pdf-crash-fix';
 
 export default class PDFExample extends React.Component {
     render() {
@@ -322,7 +348,6 @@ const styles = StyleSheet.create({
 
 ```
 
-
 ### Configuration
 
 | Property                       |                             Type                              |         Default          | Description                                                                                                                                                                   | iOS | Android | Windows                     | FirstRelease             |
@@ -340,7 +365,7 @@ const styles = StyleSheet.create({
 | fitPolicy                      |                            number                             |            2             | 0:fit width, 1:fit height, 2:fit both(default)                                                                                                                                | ✔   | ✔       | ✔                           | 3.0                      |
 | spacing                        |                            number                             |            10            | the breaker size between pages                                                                                                                                                | ✔   | ✔       | ✔                           | <3.0                     |
 | password                       |                            string                             |            ""            | pdf password, if password error, will call OnError() with message "Password required or incorrect password."                                                                  | ✔   | ✔       | ✔                           | <3.0                     |
-| style                          |                            object                             | {backgroundColor:"#eee"} | support normal view style, you can use this to set border/spacing color...                                                                                                    | ✔   | ✔       | ✔                           | <3.0 
+| style                          |                            object                             | {backgroundColor:"#eee"} | support normal view style, you can use this to set border/spacing color...                                                                                                    | ✔   | ✔       | ✔                           | <3.0
 | progressContainerStyle         |                            object                             | {backgroundColor:"#eee"} | support normal view style, you can use this to set border/spacing color...                                                                                             | ✔   | ✔       | ✔                           | 6.9.0                     |
 | renderActivityIndicator        |                    (progress) => Component                    |      <ProgressBar/>      | when loading show it as an indicator, you can use your component                                                                                                              | ✔   | ✔       | ✖                           | <3.0                     |
 | enableAntialiasing             |                             bool                              |           true           | improve rendering a little bit on low-res screens, but maybe cause some problem on Android 4.4, so add a switch                                                              | ✖   | ✔       | ✖                           | <3.0                     |
@@ -384,10 +409,13 @@ const styles = StyleSheet.create({
 | `{uri:"blob:xxxxxxxx-...?offset=0&size=xxx"}` | load pdf from blob URL | ✖ | ✔ | ✖ |
 
 \*) requires building React Native from source with [this patch](https://github.com/facebook/react-native/pull/31789)
+
 ### Methods
-* [setPage](#setPage)
+
+* [setPage](#setpage)
 
 Methods operate on a ref to the PDF element. You can get a ref with the following code:
+
 ```
 return (
   <Pdf
@@ -399,11 +427,13 @@ return (
 ```
 
 #### setPage()
+
 `setPage(pageNumber)`
 
 Set the current page of the PDF component. pageNumber is a positive integer. If pageNumber > numberOfPages, current page is not changed.
 
 Example:
+
 ```
 this.pdf.setPage(42); // Display the answer to the Ultimate Question of Life, the Universe, and Everything
 ```
